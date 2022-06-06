@@ -19,4 +19,4 @@ const Otp = new mongoose.Schema({
 
 
 
-module.exports = mongoose.model('Otp', Otp)
+module.exports = mongoose.model('Otps', Otp)

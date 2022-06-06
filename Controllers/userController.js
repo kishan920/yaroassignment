@@ -11,10 +11,14 @@ module.exports.signUp = async (req, res) => {
     const user = await User.findOne({
         number: req.body.number
     });
-    if (user) return res.status(400).send("User already registered!");
+    if (user) return res.status(200).send({
+        status: true,
+        message: `user login successfull `,
+    });
     const OTP = otpGenerator.generate(6, {
         digits: true, alphabets: false, upperCase: false, specialChars: false
     });
+    console.log(OTP)
     const number = req.body.number;
     const greenwebsms = new URLSearchParams();
     greenwebsms.append('token', '05fa33c4cb50c35f4a258e85ccf50509');
@@ -24,6 +28,7 @@ module.exports.signUp = async (req, res) => {
         console.log(response.data);
     });
     const otp = new Otp({ number: number, otp: OTP });
+    
     const salt = await bcrypt.genSalt(10)
     otp.otp = await bcrypt.hash(otp.otp, salt);
     const result = await otp.save();
@@ -39,7 +44,7 @@ module.exports.verifyOtp = async (req, res) => {
 
     if (rightOtpFind.number === req.body.number && validUser) {
         const user = new User(_.pick(req.body, ["number"]));
-        const token = user.generateJWT();
+        const token = user.genrateJWT();
         const result = await user.save();
         const OTPDelete = await Otp.deleteMany({
             number: rightOtpFind.number
